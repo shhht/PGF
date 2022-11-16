@@ -8,18 +8,66 @@ public static class Program{
 
         Variables variables = new Variables();
         Console.Clear();
-        string? formula = Console.ReadLine();
-
-        if(formula is null)
+        Console.WriteLine("Enter the path of the file:");
+        string? path = Console.ReadLine();
+        if(path is null)
             return;
+
+        string formula = File.ReadAllText(path);
+
 
         char[] charFormula = formula.ToCharArray();
 
         int position = 0;
-        Expression expression = new Expression(ref charFormula, ref position, ref variables);
         
+        string output = "";
+        
+
+        while(position < charFormula.Length) {
+            switch(charFormula[position]) {
+                case '#':
+                    position ++;
+
+                    while(position < charFormula.Length) {
+                        switch(charFormula[position]) {
+                            case ' ': case '\t':
+                                position ++;
+                                continue;
+
+                            case '(':
+                                position ++;
+                                Expression expression = new Expression(ref charFormula, ref position, ref variables);
+                                output += expression.GetString();
+                                break;
+
+                            default:
+                                position ++;
+                                break;
+                        }
+
+                        break;
+                    }
+
+                    break;
+
+                case '\\':
+                    position ++;
+                    if(position < charFormula.Length)
+                        output += charFormula[position];
+
+                    break;
+
+                default:
+                    output += charFormula[position];
+                    break;
+            }
+
+            position ++;
+        }
+
+
         Console.WriteLine();
-        Console.WriteLine(expression.GetString());
+        Console.WriteLine(output);
         Console.WriteLine();
     }
 }
