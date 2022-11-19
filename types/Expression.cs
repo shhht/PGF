@@ -41,34 +41,87 @@ namespace PGF {
                 return;
             }
 
-            int priorety = 0;
-
-            this.expression = GetOperationValueFromString(in value, in priorety, ref expression, ref position, ref variables);
-        }
-
-        public OperatebleValue GetOperationValueFromString(in OperatebleValue firstValue, in int prioretyLevel, ref char[] expression, ref int position, ref Variables variables) {
-
+            
             OperationStruct operation;
             OperatebleValue secondValue;
-
-            bool endOfExpression;
 
             GetValues(ref expression, ref position, ref variables, out operation, out secondValue, out endOfExpression);
 
             
-
-            {
-                if(endOfExpression)
-                    return new Operation(operation, firstValue, secondValue);
-
-                int priorety = operation.priorety;
-
-                OperatebleValue lastValue = new Operation(operation, firstValue, secondValue);
-
-                return GetOperationValueFromString(in lastValue, in priorety, ref expression, ref position, ref variables);
-
+            if(endOfExpression) {
+                this.expression = new Operation(operation, value, secondValue);
+                return;
             }
+            
+            GetOperationValues values;
+
+            values = new GetOperationValues(0, value, null, null, operation, secondValue);
+
+            this.expression = GetOperationFromString(ref values, ref expression, ref position, ref variables);
         }
+
+        private OperatebleValue GetOperationFromString(ref GetOperationValues values, ref char[] expression, ref int position, ref Variables variables) {
+
+            values.firstOperation = values.secondOperation;
+            values.secondValue = values.thirdValue;
+
+            GetValues(ref expression, ref position, ref variables, out values.secondOperation, out values.thirdValue, out values.endOfExpression);
+            
+            if(values.firstOperation.priorety > values.secondOperation.priorety && values.secondOperation.priorety <= values.previusOperationPriorety)
+                return GetOperationFromStringReturnWithLowerLevel(ref values);
+
+            if(values.endOfExpression) {
+                if(values.firstOperation.priorety < values.secondOperation.priorety)
+                    return GetOperationFromStringReturnWithHigherLevel(ref values);
+
+                return GetOperationFromStringReturn(ref values);
+            }
+
+            if(values.firstOperation.priorety < values.secondOperation.priorety)
+                return GetOperationFromStringHigherLevel(ref values, ref expression, ref position, ref variables);
+
+
+
+            return GetOperationFromStringContinue(ref values, ref expression, ref position, ref variables);
+            
+        }
+
+        private OperatebleValue GetOperationFromStringContinue(ref GetOperationValues values, ref char[] expression, ref int position, ref Variables variables) {
+            values.firstValue = new Operation(values.firstOperation, values.firstValue, values.secondValue);
+            return GetOperationFromString(ref values, ref expression, ref position, ref variables);
+        }
+
+        private OperatebleValue GetOperationFromStringReturn(ref GetOperationValues values) {
+            return new Operation(values.secondOperation, new Operation(values.firstOperation, values.firstValue, values.secondValue), values.thirdValue);
+        }
+
+        private OperatebleValue GetOperationFromStringReturnWithHigherLevel(ref GetOperationValues values) {
+            return new Operation(values.firstOperation, values.firstValue, new Operation(values.secondOperation, values.secondValue, values.thirdValue));
+        }
+
+        private OperatebleValue GetOperationFromStringReturnWithLowerLevel(ref GetOperationValues values) {
+            return new Operation(values.firstOperation, values.firstValue, values.secondValue);
+        }
+
+        private OperatebleValue GetOperationFromStringHigherLevel(ref GetOperationValues values, ref char[] expression, ref int position, ref Variables variables) {
+            GetOperationValues newValues = values;
+
+            newValues.firstValue = values.secondValue;
+            newValues.previusOperationPriorety = values.firstOperation.priorety;
+
+            values.secondValue = GetOperationFromString(ref newValues, ref expression, ref position, ref variables);
+
+            values.secondOperation = newValues.secondOperation;
+            values.thirdValue = newValues.thirdValue;
+
+            values.firstValue = GetOperationFromStringReturnWithLowerLevel(ref values);
+
+            if(newValues.endOfExpression)
+                return GetOperationFromStringReturn(ref values);
+
+            return GetOperationFromString(ref values, ref expression, ref position, ref variables);
+        }
+
 
         public override void FromString(string value)
         {
@@ -421,6 +474,25 @@ namespace PGF {
         public override Integer ConvertToInteger()
         {
             return GetOperatebleValue().ConvertToInteger();
+        }
+
+        private struct GetOperationValues {
+            public int previusOperationPriorety;
+            public OperatebleValue firstValue;
+            public OperationStruct firstOperation;
+            public OperatebleValue secondValue;
+            public OperationStruct secondOperation;
+            public OperatebleValue thirdValue;
+            public bool endOfExpression = false;
+
+            public GetOperationValues(int previusOperationPriorety, OperatebleValue firstValue, OperationStruct firstOperation, OperatebleValue secondValue, OperationStruct secondOperation, OperatebleValue thirdValue) {
+                this.previusOperationPriorety = previusOperationPriorety;
+                this.firstValue = firstValue;
+                this.firstOperation = firstOperation;
+                this.secondValue = secondValue;
+                this.secondOperation = secondOperation;
+                this.thirdValue = thirdValue;
+            }
         }
     }
 

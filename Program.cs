@@ -6,9 +6,11 @@ public static class Program {
         Variables variables = new Variables();
         string? path;
 
+        path = "test.pgf";
+
         if (args.Length == 0) {
             Console.WriteLine("Enter the path of the file:");
-            path = Console.ReadLine();
+            //path = Console.ReadLine();
         }
         else
             path = args[0];

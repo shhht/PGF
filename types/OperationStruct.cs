@@ -12,7 +12,7 @@ namespace PGF {
 
     public struct Add : OperationStruct {
 
-        public int priorety {get {return 1;}}
+        public int priorety {get {return 5;}}
         public string name {get {return "+";}}
         public OperatebleValue Operation(in OperatebleValue leftArgument, in OperatebleValue rightArgument) {
             return leftArgument.Add(in rightArgument);
@@ -21,7 +21,7 @@ namespace PGF {
 
     public struct Subtract : OperationStruct {
 
-        public int priorety {get {return 1;}}
+        public int priorety {get {return 5;}}
 
         public string name {get {return "-";}}
         public OperatebleValue Operation(in OperatebleValue leftArgument, in OperatebleValue rightArgument) {
@@ -31,7 +31,7 @@ namespace PGF {
 
     public struct Multiply : OperationStruct {
 
-        public int priorety {get {return 2;}}
+        public int priorety {get {return 6;}}
 
         public string name {get {return "*";}}
         public OperatebleValue Operation(in OperatebleValue leftArgument, in OperatebleValue rightArgument) {
@@ -41,7 +41,7 @@ namespace PGF {
 
     public struct Devide : OperationStruct {
 
-        public int priorety {get {return 2;}}
+        public int priorety {get {return 6;}}
 
         public string name {get {return "/";}}
         public OperatebleValue Operation(in OperatebleValue leftArgument, in OperatebleValue rightArgument) {
@@ -51,7 +51,7 @@ namespace PGF {
 
     public struct Modulus : OperationStruct {
 
-        public int priorety {get {return 2;}}
+        public int priorety {get {return 6;}}
 
         public string name {get {return "%";}}
         public OperatebleValue Operation(in OperatebleValue leftArgument, in OperatebleValue rightArgument) {
